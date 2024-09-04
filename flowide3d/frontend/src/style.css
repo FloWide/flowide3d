@@ -1,0 +1,51 @@
+* {
+margin: 0;
+padding:0;
+}
+
+
+.toolbar {
+  position: fixed;
+  top:1em;
+  left:1em;
+  display:flex;
+  z-index: 1000;
+  flex-direction: column;
+}
+
+.icon-button {
+  display: inline-flex; /* Centers the icon and maintains button shape */
+  justify-content: center; /* Centers content horizontally */
+  align-items: center; /* Centers content vertically */
+  width: 30px; /* Fixed width to make the button square */
+  height: 30px; /* Fixed height to make the button square */
+  border: 1px solid #666; /* Light gray border to mimic Leaflet's border */
+  border-radius: 4px; /* Small rounded corners */
+  background-color: #fff; /* Flat white background */
+  color: #000; /* Black icon color */
+  font-size: 18px; /* Icon size */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth transitions for hover effects */
+  outline: none; /* Removes the default outline for focus state */
+  padding: 0; /* No padding to keep icons centered */
+  margin:2px 0;
+}
+
+.icon-button:hover {
+  background-color: #f0f0f0; /* Light gray background on hover */
+  border-color: #000; /* Darker border on hover */
+}
+
+.icon-button:active {
+  background-color: #e0e0e0; /* Slightly darker gray when active/clicked */
+  border-color: #333; /* Darker border when active */
+}
+
+.active {
+  /* inset box shadow*/
+  box-shadow: inset 1px 1px 1px 1px black;
+}
+
+.crosshair {
+  cursor: crosshair;
+}

@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "flowide3d"
+version = "0.1.0"
+description = ""
+authors = ["FloWide Ltd. <contact@flowide.net>"]
+readme = "README.md"
+packages = [{include = "flowide3d"}]
+include = ["flowide3d/frontend/dist/**/*"]
+
+
+
+[tool.poetry.dependencies]
+python = "^3.10"
+streamlit = "^1.38.0"
+open3d = "^0.18.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
