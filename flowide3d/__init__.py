@@ -10,7 +10,7 @@ import shutil
 from typing import Tuple, TypedDict, TypeAlias, Literal
 
 
-_RELEASE = False
+_RELEASE = True
 
 COMPONENT_NAME = "flowide3d"
 
