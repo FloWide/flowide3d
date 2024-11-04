@@ -42,7 +42,7 @@ jobs:
           tagRegex: '(v)(?<version>[0-9]+\.[0-9]+\.[0-9]+)'
       - name: Build frontend and package python
         run: |
-          cd streamlit_flowide/frontend
+          cd flowide3d/frontend
           npm install --silent
           CI=false npm run build
           cd ../..
@@ -59,8 +59,6 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
-          body: |
-            ${{ steps.Changelog.outputs.changelog }}
       - name: Upload Release Asset
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1

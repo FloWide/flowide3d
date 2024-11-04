@@ -47,3 +47,4 @@ env/
 # Miscellaneous
 *.pyc
 .DS_Store
+test_data/

@@ -48,12 +48,12 @@ export class TextSprite extends Object3D {
 		this.sprite = new Sprite(this.material);
 		this.add(this.sprite);
 
-		this.borderThickness = 4;
+		this.borderThickness = 1;
 		this.fontface = 'Arial';
 		this.fontsize = 18;
 		this.borderColor = { r: 0, g: 0, b: 0, a: 1.0 };
 		this.backgroundColor = { r: 255, g: 255, b: 255, a: 1.0 };
-		this.textColor = {r: 255, g: 255, b: 255, a: 1.0};
+		this.textColor = {r: 0, g: 0, b: 0, a: 1.0};
 		this.text = '';
 
 		this.setText(text);
@@ -81,6 +81,13 @@ export class TextSprite extends Object3D {
 
 	setBackgroundColor(color: TextColor){
 		this.backgroundColor = color;
+
+		this.update();
+	}
+
+	setFontSize(size: number){
+		this.fontsize = Math.floor(size);
+		this.fontsize = Math.min(this.fontsize, 72);
 
 		this.update();
 	}

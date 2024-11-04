@@ -1,4 +1,4 @@
-import { BufferGeometry, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, PerspectiveCamera, Raycaster, Scene, SphereGeometry, Vector2, Vector3, WebGLRenderer } from 'three';
+import { BufferGeometry, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, SphereGeometry, Vector2, Vector3, WebGLRenderer } from 'three';
 import { PointCloudOctree} from '@pnext/three-loader';
 import { TextSprite } from './TextSprite';
 
@@ -9,7 +9,7 @@ export class Measurement {
 
     private _measuring: boolean = false;
 
-    constructor(private scene: Scene, private camera: PerspectiveCamera, private renderer: WebGLRenderer, private pointClouds: PointCloudOctree[]) {
+    constructor(private scene: Scene, private camera: PerspectiveCamera | OrthographicCamera, private renderer: WebGLRenderer, private pointClouds: PointCloudOctree[]) {
         renderer.domElement.addEventListener('click', this.onClick.bind(this));
         renderer.domElement.addEventListener('mousemove', this.onDrag.bind(this));
     }
@@ -19,7 +19,8 @@ export class Measurement {
         const point = this.findIntersection(event);
         if (point) {
             // add a sphere to the scene
-            const geometry = new SphereGeometry(0.05, 32, 32);
+            const cameraDistance = this.camera.position.distanceTo(point);
+            const geometry = new SphereGeometry(0.01 * cameraDistance, 32, 32);
             const material = new MeshBasicMaterial({ color: 0xff0000 });
             const sphere = new Mesh(geometry, material);
             sphere.position.copy(point);
