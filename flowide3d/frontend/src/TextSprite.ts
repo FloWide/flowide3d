@@ -39,7 +39,9 @@ export class TextSprite extends Object3D {
 		let spriteMaterial = new SpriteMaterial({
 			map: texture,
 			depthTest: false,
-			depthWrite: false});
+			depthWrite: false,
+			sizeAttenuation:true,
+		});
 
 		this.texture = texture;
 

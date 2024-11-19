@@ -1,11 +1,11 @@
 import streamlit as st
-from flowide3d import pointcloud3d, to_potree
+from flowide3d import pointcloud3d, to_potree, CameraConfig
 import open3d as o3d
 
 st.set_page_config(layout='wide')
 
 
-@st.cache
+@st.cache_data
 def convert_to_potree():
     # read some test data
     pcd = o3d.io.read_point_cloud("./test_data/test.pcd")
@@ -16,30 +16,63 @@ def convert_to_potree():
 
 
 # show a pointcloud with default config
+st.header('Default config')
 pointcloud3d("https://test-pix4d-cloud-eu-central-1.s3.eu-central-1.amazonaws.com/lion_takanawa_converted")
 
-
-# change camera and background
+# arcball control
+st.header('Arcball control')
 pointcloud3d(
     "https://test-pix4d-cloud-eu-central-1.s3.eu-central-1.amazonaws.com/lion_takanawa_converted",
-    background=(0.678, 0.847, 0.902),  # light blue,
     camera={
-        "position": (0, 0, 5),
-        "look_at": (0, 0, 0),
-        "up": (0, 1, 0),
-        "type": "orthographic",
+        **CameraConfig.default(),
+        "camera_control_type": "arcball",
+        "arcball_gizmo": True
     }
 )
 
 
-convert_to_potree() # convert to potree format in test_tree directory
-
+# with boxes
+st.header('With boxes')
 pointcloud3d(
-    "http://localhost:8080", # test_tree directory is server under http,
-    camera={
-        "position": (0, 0, 0),
-        "look_at": (0, -5, 0),
-        "up": (0, 1, 0),
-        "type": "perspective",
-    }
+    "https://test-pix4d-cloud-eu-central-1.s3.eu-central-1.amazonaws.com/lion_takanawa_converted",
+    boxes=[
+        {
+            "min": (-1, -1, -1),
+            "max": (1, 1, 1),
+            "face_color": "#ff0000",
+            "line_color": "#000000",
+            "opacity": 0.5,
+        },
+        {
+            "min": (1, 1, 1),
+            "max": (2, 2, 2),
+            "face_color": "#00ff00",
+            "line_color": "#000000",
+            "opacity": 0.5,
+        },
+        {
+            "min": (2, 2, 2),
+            "max": (3, 3, 3),
+            "face_color": "#0000ff",
+            "line_color": "#000000",
+            "opacity": 0.5,
+        }
+    ]
+)
+
+st.header('Color background')
+pointcloud3d(
+    "https://test-pix4d-cloud-eu-central-1.s3.eu-central-1.amazonaws.com/lion_takanawa_converted",
+    background='lightblue'
+)
+
+
+st.header('Grid box')
+pointcloud3d(
+    "https://test-pix4d-cloud-eu-central-1.s3.eu-central-1.amazonaws.com/lion_takanawa_converted",
+    grid_box={
+        "min": (5, 5, 5),
+        "max": (20, 20, 20),
+    },
+    placement='grid_box_center'
 )

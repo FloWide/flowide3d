@@ -52,3 +52,50 @@ pointcloud3d(
 )
 
 ```
+
+## Documentation
+
+### `pointcloud3d` Function
+
+#### Parameters
+
+| Parameter        | Type                                                                 | Default                       | Description                                                                                   |
+|------------------|----------------------------------------------------------------------|-------------------------------|-----------------------------------------------------------------------------------------------|
+| `base_url`       | `str`                                                               | Required                      | Base URL of the point cloud data.                                                             |
+| `point_size`     | `int`                                                               | `1`                           | Size of the points in the visualization.                                                     |
+| `camera`         | `CameraConfig`                                                     | `CameraConfig.default()`      | Camera configuration including position, view, and control types.                            |
+| `background`     | `str` or `None`                                                    | `None`                        | Background color of the visualization (e.g., `#ffffff`).                                      |
+| `boxes`          | `List[SimpleBox3D]` or `None`                                      | `[]`                          | List of 3D boxes to display alongside the point cloud.                                        |
+| `show_toolbar`   | `bool`                                                             | `True`                        | Whether to show the toolbar in the viewer.                                                   |
+| `grid_box`       | `Box3D` or `'bounding_box'` or `None`                              | `'bounding_box'`              | Bounding box for the grid.                                                                    |
+| `placement`      | `'origin'`, `'grid_box_center'`, or `'none'`                       | `'origin'`                    | Placement of the point cloud in the scene.                                                   |
+| `height`         | `int` or `None`                                                    | `None`                        | Height of the visualization component in pixels.                                              |
+| `key`            | `str` or `None`                                                    | `None`                        | Unique key for the component.                                                                 |
+
+#### Returns
+
+The configured 3D point cloud visualization component.
+
+---
+
+### `to_potree` Function
+
+#### Description
+
+The `to_potree` function converts an Open3D point cloud to the Potree format for efficient visualization of large-scale point cloud datasets.
+
+#### Parameters
+
+| Parameter       | Type                              | Description                                                                                   |
+|-----------------|-----------------------------------|-----------------------------------------------------------------------------------------------|
+| `pointcloud`    | `o3d.geometry.PointCloud`        | The Open3D point cloud to convert.                                                           |
+| `output_dir`    | `str`                             | Directory where the Potree output will be saved.                                              |
+
+## Behavior
+
+1. Converts the input point cloud to `.las` format using the `to_las_file` helper function.
+2. Runs the PotreeConverter to generate the output files in the specified directory.
+
+## Exceptions
+
+- Raises an exception if the PotreeConverter process fails.

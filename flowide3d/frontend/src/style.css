@@ -48,3 +48,7 @@
 .crosshair {
   cursor: crosshair;
 }
+
+.hidden {
+  display: none;
+}

@@ -7,7 +7,7 @@ import numpy as np
 import subprocess
 import matplotlib.pyplot as plt
 import shutil
-from typing import Tuple, TypedDict, TypeAlias, Literal
+from typing import List, Tuple, TypedDict, TypeAlias, Literal
 
 
 _RELEASE = True
@@ -33,7 +33,9 @@ class CameraConfig(TypedDict):
     look_at: Vec3
     fov: float
     type: Literal['perspective'] | Literal['orthographic']
-
+    camera_control_type: Literal['orbit'] | Literal['arcball']
+    viewport_gizmo: bool
+    arcball_gizmo: bool
 
     @staticmethod
     def default() -> 'CameraConfig':
@@ -42,7 +44,33 @@ class CameraConfig(TypedDict):
             "look_at": (0, 0, 0),
             "up":(0, 1, 0),
             "fov": 60,
-            "type": "perspective"
+            "type": "perspective",
+            "camera_control_type": "orbit",
+            "viewport_gizmo": True,
+            "arcball_gizmo": False,
+        }
+
+
+class Box3D(TypedDict):
+    min: Vec3
+    max: Vec3
+
+class SimpleBox3D(Box3D):
+    min: Vec3
+    max: Vec3
+
+    face_color: str
+    line_color: str
+    opacity: float
+
+    @staticmethod
+    def default() -> 'SimpleBox3D':
+        return {
+            "min": (-1, -1, -1),
+            "max": (1, 1, 1),
+            "face_color": "#ffffff",
+            "line_color": "#000000",
+            "opacity": 0.5,
         }
 
 
@@ -50,31 +78,29 @@ def pointcloud3d(
     base_url: str,
     point_size: int = 1,
     camera: CameraConfig = None,
-    background: Vec3 | None = None,
-    key=None, height:
-    int | None =None
+    background: str | None = None,
+    boxes: List[SimpleBox3D] | None = None,
+    show_toolbar: bool = True,
+    grid_box: Box3D | Literal['bounding_box'] | None = 'bounding_box',
+    placement: Literal['origin','grid_box_center', 'none'] = 'origin',
+    height: int | None =None,
+    key: str | None = None
 ):
-    """
-        Visualize the pointcloud in potree format
-    Args:
-        base_url (str): Base UR path of the potree formatted pointcloud
-        point_size (int, optional): Pointcloud point size. Defaults to 1.
-        camera (CameraConfig, optional): Inital camera config Defaults to None.
-        background (Vec3 | None, optional): An RGB Tuple of color in the range of 0.1 example: (0,0,1) for blue color Defaults to None.
-        key (_type_, optional): streamlit key Defaults to None.
-        height (int | None, optional): height of the display Defaults to None.
-
-    Returns:
-        None
-    """
     if camera is None:
         camera = CameraConfig.default()
+
+    if boxes is None:
+        boxes = []
 
     component_value = _component_func(
         base_url=base_url, 
         point_size=point_size,
         camera=camera,
         background=background,
+        boxes=boxes,
+        show_toolbar=show_toolbar,
+        grid_box=grid_box,
+        placement=placement,
         key=key, 
         height=height
     )

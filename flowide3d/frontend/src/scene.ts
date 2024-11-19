@@ -1,12 +1,25 @@
 import { PointCloudOctree, Potree } from '@pnext/three-loader';
-import CameraControls from 'camera-controls';
-import {Clock, Color, CubeTexture, OrthographicCamera, PerspectiveCamera, Scene, Texture, WebGLRenderer, AxesHelper} from 'three';
-import { Measurement } from './measurement';
+import {Clock, Color, CubeTexture, OrthographicCamera, PerspectiveCamera, Scene, Texture, WebGLRenderer, Object3D} from 'three';
+import { Measurement, MeasurementTool } from './measurement';
+import {CameraControls, CameraControlType} from './CameraControls'
+import { GridBox } from './GridBox';
 
 export type CameraType = 'perspective' | 'orthographic';
 
-export class PointCloudScene {
 
+export interface CameraConfig {
+    fov?: number;
+    type: CameraType;
+    up: [number, number, number];
+    position: [number, number, number];
+    look_at: [number, number, number];
+    camera_control_type: CameraControlType;
+    viewport_gizmo: boolean;
+    arcball_gizmo: boolean;
+}
+
+export class PointCloudScene {
+  
     private scene: Scene;
 
     private pointClouds: PointCloudOctree[];;
@@ -17,11 +30,11 @@ export class PointCloudScene {
 
     private renderer: WebGLRenderer;
 
-    private clock: Clock;
-
     private _cameraControls: CameraControls;
 
-    private _measurementTool: Measurement;
+    private _measurementTool: MeasurementTool;
+
+    public gridBox: GridBox | null = null;
 
     constructor(
         private width: number = window.innerWidth, 
@@ -36,32 +49,30 @@ export class PointCloudScene {
         this.renderer.setSize(this.width, this.height);
         parentDomElement.appendChild(this.renderer.domElement);
 
-        this.clock = new Clock();
-
         this.pointClouds = [];
         this.potree = new Potree('v2');
 
         if (camera === 'perspective') {
-            this._camera = new PerspectiveCamera(75, this.width / this.height, 0.1, 1000);
+            this._camera = new PerspectiveCamera(75, this.width / this.height, 0.1, 10000);
         } else {
-            this._camera = new OrthographicCamera(-1, 1, 1, -1, 0.1, 1000);
+            this._camera = new OrthographicCamera(-1, 1, 1, -1, 0.1, 10000);
         }
         this._camera.position.z = 5;
-        this._cameraControls = new CameraControls(this._camera, this.renderer.domElement);
+        this._cameraControls = new CameraControls(this._camera, this.renderer, this.scene,'orbit',true);
 
-        this._measurementTool = new Measurement(this.scene, this._camera, this.renderer, this.pointClouds);
+        this._measurementTool = new MeasurementTool(this.scene, this._camera, this.renderer, this.pointClouds);
 
         this.renderer.setAnimationLoop(this.animate.bind(this));
+        
+        this._measurementTool.addEventListener('measurement', this.onNewMeasurement.bind(this));
 
-        this.scene.add(new AxesHelper());
     }
 
 
     animate() {
-        const delta = this.clock.getDelta();
-        this._cameraControls.update(delta);
         this.potree.updatePointClouds(this.pointClouds, this._camera, this.renderer);
         this.renderer.render(this.scene, this._camera);
+        this.cameraControls.update();
     }
 
     async loadPointCloud(fullUrl: string): Promise<PointCloudOctree> {
@@ -88,6 +99,10 @@ export class PointCloudScene {
         this._measurementTool.measuring = !this._measurementTool.measuring;
     }
 
+    clearMeasurements() {
+        this._measurementTool.clear();
+    }
+
     setBackground(background: Color | Texture | CubeTexture) {
         this.scene.background = background;
     }
@@ -104,10 +119,10 @@ export class PointCloudScene {
         return this._measurementTool
     }   
 
-    updateCamera(cameraConfig: any) {
+    updateCamera(cameraConfig: CameraConfig) {
         if (cameraConfig.type === 'perspective') {
             this._camera = new PerspectiveCamera(
-                cameraConfig.fov,
+                cameraConfig.fov ?? 90,
                 this.width / this.height, 
                 0.1, 
                 1000
@@ -115,24 +130,40 @@ export class PointCloudScene {
         } else {
             this._camera = new OrthographicCamera();
         }
-        this._cameraControls = new CameraControls(this._camera, this.renderer.domElement);
-
-        this._measurementTool = new Measurement(this.scene, this._camera, this.renderer, this.pointClouds);
+        this._cameraControls = new CameraControls(
+            this._camera,
+            this.renderer,
+            this.scene,cameraConfig.camera_control_type,
+            cameraConfig.viewport_gizmo,
+            cameraConfig.arcball_gizmo
+        );
+        this.clearMeasurements();
+        this._measurementTool = new MeasurementTool(this.scene, this._camera, this.renderer, this.pointClouds);
+        this._measurementTool.addEventListener('measurement', this.onNewMeasurement.bind(this));
 
         this.camera.up.set(
             cameraConfig.up[0],
             cameraConfig.up[1],
             cameraConfig.up[2]
         );
-        this.cameraControls.updateCameraUp();
-        this._cameraControls.setLookAt(
+        this.camera.position.set(
             cameraConfig.position[0],
             cameraConfig.position[1],
-            cameraConfig.position[2],
+            cameraConfig.position[2]
+        );
+        this.camera.lookAt(
             cameraConfig.look_at[0],
             cameraConfig.look_at[1],
-            cameraConfig.look_at[2],
+            cameraConfig.look_at[2]
         )
+    }
+
+    add(...objects: Object3D[]) {
+        this.scene.add(...objects);
+    }
+
+    private onNewMeasurement(event: {type:string, detail: Measurement}) {
+        this.gridBox?.addMeasurement(event.detail);
     }
 
 }

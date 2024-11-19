@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flowide3d"
-version = "0.0.0"
+version = "0.0.2"
 description = ""
 authors = ["FloWide Ltd. <contact@flowide.net>"]
 readme = "README.md"

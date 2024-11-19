@@ -15,8 +15,9 @@
   },
   "dependencies": {
     "@pnext/three-loader": "^0.3.7",
-    "camera-controls": "^2.9.0",
     "streamlit-component-lib": "^2.0.0",
-    "three": "^0.167.1"
+    "three": "^0.167.1",
+    "three-stdlib": "^2.34.0",
+    "three-viewport-gizmo": "^1.0.1"
   }
 }
