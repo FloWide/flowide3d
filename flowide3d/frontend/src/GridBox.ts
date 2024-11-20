@@ -9,34 +9,41 @@ import {
     ShaderMaterial,
     Raycaster,
     SphereGeometry,
-    MeshBasicMaterial
+    MeshBasicMaterial,
+    EdgesGeometry,
+    LineSegments,
+    GridHelper,
+    WireframeGeometry,
+    Float32BufferAttribute
 } from 'three';
 import { TextSprite } from './TextSprite';
 import { Measurement } from './measurement';
 import { Line, BufferGeometry, LineBasicMaterial } from 'three';
 
-const checkerBoard = new ShaderMaterial({
+
+
+const customWireFrame = new ShaderMaterial({
+    uniforms: {
+        color: { value: new Color(0x000000) },
+    },
     vertexShader: `
-        precision highp float;
-        varying vec2 vUv;
+        varying vec3 vNormal;
         void main() {
-            vUv = uv;
+            vNormal = normal;
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
     `,
     fragmentShader: `
-        precision highp float;
-        varying vec2 vUv;
+        uniform vec3 color;
+        varying vec3 vNormal;
         void main() {
-            vec2 position = floor(vUv * 30.0);
-            float color = mod(position.x + position.y, 2.0);
-            vec3 grey = mix(vec3(0.2), vec3(0.8), color);
-            gl_FragColor = vec4(grey, 0.3);
+            float v = dot(vNormal, vec3(0.0, 0.0, 1.0));
+            gl_FragColor = vec4(color, v);
         }
     `,
     side: DoubleSide,
-    transparent: true
-});
+    transparent: true,
+})
 
 
 export interface GridBoxPoints {
@@ -152,7 +159,13 @@ export class GridBox extends Object3D {
     // the corner where all planes intersect, used as the origin point
     private zeroCorner: Vector3;
 
-    constructor(box: Box3) {
+    constructor(
+        box: Box3,
+        private gridColor: Color,
+        private lineColor: Color,
+        private divisions: number = 10,
+        private opacity: number = 0.5
+    ) {
         super();
         this.box = box;
         const size = new Vector3();
@@ -165,18 +178,18 @@ export class GridBox extends Object3D {
         const low = box.min;
 
         // Bottom plane
-        this.bottomPlane = this.createPlane(size.x, size.z, new Color(0xff0000));
+        this.bottomPlane = this.createPlane(size.x, size.z);
         this.bottomPlane.position.set(center.x, low.y, center.z);
         this.bottomPlane.rotation.x = Math.PI / 2;
         this.add(this.bottomPlane);
 
         // Front plane
-        this.frontPlane = this.createPlane(size.x, size.y, new Color(0x00ff00));
+        this.frontPlane = this.createPlane(size.x, size.y);
         this.frontPlane.position.set(center.x, center.y, low.z);
         this.add(this.frontPlane);
 
         // Side plane
-        this.sidePlane = this.createPlane(size.z, size.y, new Color(0x0000ff));
+        this.sidePlane = this.createPlane(size.z, size.y);
         this.sidePlane.position.set(low.x, center.y, center.z);
         this.sidePlane.rotation.y = Math.PI / 2;
         this.add(this.sidePlane);
@@ -185,24 +198,33 @@ export class GridBox extends Object3D {
         this.zeroCorner = new Vector3(low.x, low.y, low.z);
     }
 
-    private createPlane(width: number, height: number, color: Color): Mesh {
-        const geometry = new PlaneGeometry(width, height);
-        return new Mesh(geometry, checkerBoard);
-    }
+    private createPlane(width: number, height: number): Mesh {
 
-    private createTexts(plane: Mesh) {
-        const vertices = plane.geometry.attributes.position.array;
-        plane.updateMatrixWorld(true);
-        for (let i = 0; i < vertices.length; i += 3) {
-            const localVertex = new Vector3(vertices[i], vertices[i + 1], vertices[i + 2]);
-            const worldVertex = localVertex.applyMatrix4(plane.matrixWorld);
-            const xDistance = Math.abs(worldVertex.x - this.zeroCorner.x);
-            const yDistance = Math.abs(worldVertex.y - this.zeroCorner.y);
-            const zDistance = Math.abs(worldVertex.z - this.zeroCorner.z);
-            const text = new TextSprite(`(${xDistance.toFixed(2)}, ${yDistance.toFixed(2)}, ${zDistance.toFixed(2)})`);
-            text.position.copy(worldVertex);
-            this.add(text);
+        const geometry = new PlaneGeometry(width, height, 10,10);
+        const mesh = new Mesh(geometry, new MeshBasicMaterial({ color: this.gridColor, side: DoubleSide, transparent: true, opacity: this.opacity }));
+
+        const gridVertices: number[] = [];
+        const stepX = width / this.divisions;
+        const stepY = height / this.divisions;
+
+        for (let i = 0; i <= this.divisions; i++) {
+            const x = -width / 2 + i * stepX;
+            gridVertices.push(x, -height / 2, 0, x, height / 2, 0); 
         }
+        for (let i = 0; i <= this.divisions; i++) {
+            const y = -height / 2 + i * stepY;
+            gridVertices.push(-width / 2, y, 0, width / 2, y, 0);
+        }
+
+        const gridGeometry = new BufferGeometry();
+        gridGeometry.setAttribute('position', new Float32BufferAttribute(gridVertices, 3));
+
+        const gridMaterial = new LineBasicMaterial({ color: this.lineColor, transparent: true, opacity: this.opacity, linewidth:3 });
+        const grid = new LineSegments(gridGeometry, gridMaterial);
+        
+        mesh.add(grid);
+
+        return mesh;
     }
 
     worldCoordToBoxCoord(coord: Vector3) : Vector3 {

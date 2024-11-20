@@ -1,5 +1,5 @@
 import { PointCloudOctree, Potree } from '@pnext/three-loader';
-import {Clock, Color, CubeTexture, OrthographicCamera, PerspectiveCamera, Scene, Texture, WebGLRenderer, Object3D} from 'three';
+import {Clock, Color, CubeTexture, OrthographicCamera, PerspectiveCamera, Scene, Texture, WebGLRenderer, Object3D, AxesHelper, Vector3} from 'three';
 import { Measurement, MeasurementTool } from './measurement';
 import {CameraControls, CameraControlType} from './CameraControls'
 import { GridBox } from './GridBox';
@@ -66,6 +66,7 @@ export class PointCloudScene {
         
         this._measurementTool.addEventListener('measurement', this.onNewMeasurement.bind(this));
 
+        this.scene.add(new AxesHelper(10));
     }
 
 
@@ -80,6 +81,14 @@ export class PointCloudScene {
             'metadata.json', 
             (url: string) => `${fullUrl}/${url}` 
         );
+        const metadata = await fetch(`${fullUrl}/metadata.json`).then(res => res.json());
+        const offset = metadata.offset;
+        const scale = metadata.scale;
+
+        const vec = new Vector3(offset[0], offset[1], offset[2]);
+        vec.multiply(new Vector3(scale[0], scale[1], scale[2]));
+        pointCloud.position.sub(vec);
+
         this.pointClouds.push(pointCloud);
         this.scene.add(pointCloud);
         return pointCloud;
@@ -101,6 +110,10 @@ export class PointCloudScene {
 
     clearMeasurements() {
         this._measurementTool.clear();
+
+        console.info('Camera position', this.camera.position);
+        console.info('Camera look at', this.cameraControls.target);
+        console.info('Camera up', this.camera.up);
     }
 
     setBackground(background: Color | Texture | CubeTexture) {
@@ -151,7 +164,7 @@ export class PointCloudScene {
             cameraConfig.position[1],
             cameraConfig.position[2]
         );
-        this.camera.lookAt(
+        this._cameraControls.target = new Vector3(
             cameraConfig.look_at[0],
             cameraConfig.look_at[1],
             cameraConfig.look_at[2]

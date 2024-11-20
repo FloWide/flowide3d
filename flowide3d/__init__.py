@@ -40,9 +40,9 @@ class CameraConfig(TypedDict):
     @staticmethod
     def default() -> 'CameraConfig':
         return {
-            "position": (0, 0, 5),
+            "position": (0, 5, 0),
             "look_at": (0, 0, 0),
-            "up":(0, 1, 0),
+            "up":(0, 0, 1),
             "fov": 60,
             "type": "perspective",
             "camera_control_type": "orbit",
@@ -73,6 +73,22 @@ class SimpleBox3D(Box3D):
             "opacity": 0.5,
         }
 
+class GridBoxConfig(TypedDict):
+    grid_color: str
+    line_color: str
+    opacity: float
+    divisions: int
+
+
+    @staticmethod
+    def default() -> 'GridBoxConfig':
+        return {
+            "grid_color": "#aaaaaa",
+            "line_color": "#000000",
+            "opacity": 0.3,
+            "divisions": 10,
+        }
+
 
 def pointcloud3d(
     base_url: str,
@@ -82,7 +98,8 @@ def pointcloud3d(
     boxes: List[SimpleBox3D] | None = None,
     show_toolbar: bool = True,
     grid_box: Box3D | Literal['bounding_box'] | None = 'bounding_box',
-    placement: Literal['origin','grid_box_center', 'none'] = 'origin',
+    grid_box_config: GridBoxConfig | None = None,
+    placement: Literal['origin','grid_box_center', 'none'] = 'none',
     height: int | None =None,
     key: str | None = None
 ):
@@ -92,6 +109,9 @@ def pointcloud3d(
     if boxes is None:
         boxes = []
 
+    if grid_box_config is None:
+        grid_box_config = GridBoxConfig.default()
+
     component_value = _component_func(
         base_url=base_url, 
         point_size=point_size,
@@ -100,6 +120,7 @@ def pointcloud3d(
         boxes=boxes,
         show_toolbar=show_toolbar,
         grid_box=grid_box,
+        grid_box_config=grid_box_config,
         placement=placement,
         key=key, 
         height=height

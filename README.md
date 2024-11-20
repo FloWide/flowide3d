@@ -68,9 +68,10 @@ pointcloud3d(
 | `boxes`          | `List[SimpleBox3D]` or `None`                                      | `[]`                          | List of 3D boxes to display alongside the point cloud.                                        |
 | `show_toolbar`   | `bool`                                                             | `True`                        | Whether to show the toolbar in the viewer.                                                   |
 | `grid_box`       | `Box3D` or `'bounding_box'` or `None`                              | `'bounding_box'`              | Bounding box for the grid.                                                                    |
-| `placement`      | `'origin'`, `'grid_box_center'`, or `'none'`                       | `'origin'`                    | Placement of the point cloud in the scene.                                                   |
+| `grid_box_config`| `GridBoxConfig` or `None`                                          | `GridBoxConfig.default()`     | Configuration for the grid box, including color, opacity, and number of divisions.           |
+| `placement`      | `'origin'`, `'grid_box_center'`, or `'none'`                       | `'none'`                      | Placement of the point cloud in the scene.                                                   |
 | `height`         | `int` or `None`                                                    | `None`                        | Height of the visualization component in pixels.                                              |
-| `key`            | `str` or `None`                                                    | `None`                        | Unique key for the component.                                                                 |
+| `key`            | `str` or `None`                                                    | `None`                        | Unique key for the component.                                                                 |                                                    |
 
 #### Returns
 

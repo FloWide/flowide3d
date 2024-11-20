@@ -35,14 +35,15 @@ function onStreamlitRender(event: Event) {
   const cameraConfig = data.args?.camera;
   const background = data.args?.background;
   const showToolbar = data.args?.show_toolbar ?? true;
-  const gridBoxConfig: 'bounding_box' | {min:number[], max:number[]} | null = data.args?.grid_box ?? null;
+  const gridBoxType: 'bounding_box' | {min:number[], max:number[]} | null = data.args?.grid_box ?? null;
+  const gridBoxConfig = data.args?.grid_box_config;
   const placement = data.args?.placement;
 
-  if (gridBoxConfig !== 'bounding_box' && gridBoxConfig !== null) {
-    const min = new Vector3(gridBoxConfig.min[0], gridBoxConfig.min[1], gridBoxConfig.min[2]);
-    const max = new Vector3(gridBoxConfig.max[0], gridBoxConfig.max[1], gridBoxConfig.max[2]);
+  if (gridBoxType !== 'bounding_box' && gridBoxType !== null) {
+    const min = new Vector3(gridBoxType.min[0], gridBoxType.min[1], gridBoxType.min[2]);
+    const max = new Vector3(gridBoxType.max[0], gridBoxType.max[1], gridBoxType.max[2]);
 
-    const gridBox = new GridBox(new Box3(min, max));
+    const gridBox = new GridBox(new Box3(min, max), gridBoxConfig.grid_color, gridBoxConfig.line_color, gridBoxConfig.divisions, gridBoxConfig.opacity);
     pointCloudScene.add(gridBox);
 
     pointCloudScene.gridBox = gridBox;
@@ -86,15 +87,13 @@ function onStreamlitRender(event: Event) {
 
     pointCloudScene.loadPointCloud(url).then((pointCloud) => {
       pointCloud.material.size = pointSize;
-      pointCloud.rotation.x = -Math.PI / 2;
       if (placement === 'origin')
         pointCloud.moveToOrigin();
 
-      if (gridBoxConfig === 'bounding_box') {
+      if (gridBoxType === 'bounding_box') {
         let box = pointCloud.getBoundingBoxWorld().clone();
-        box = box.expandByScalar(4.0);
 
-        const gridBox = new GridBox(box);
+        const gridBox = new GridBox(box, gridBoxConfig.grid_color, gridBoxConfig.line_color, gridBoxConfig.divisions, gridBoxConfig.opacity);
 
         pointCloudScene.add(gridBox);
 

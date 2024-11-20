@@ -52,6 +52,14 @@ export class CameraControls {
         return this._gizmoEnabled;
     }
 
+    get target() {
+        return this._controls.target;
+    }
+
+    set target(value: Vector3) {
+        this._controls.target.copy(value);
+    }
+
     update() {
         this._controls.update();
         if (this._viewportGizmo) {

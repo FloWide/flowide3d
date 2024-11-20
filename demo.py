@@ -15,7 +15,9 @@ def convert_to_potree():
 
 
 
-# show a pointcloud with default config
+pointcloud3d("http://localhost:8080")
+
+# # show a pointcloud with default config
 st.header('Default config')
 pointcloud3d("https://test-pix4d-cloud-eu-central-1.s3.eu-central-1.amazonaws.com/lion_takanawa_converted")
 
@@ -71,8 +73,14 @@ st.header('Grid box')
 pointcloud3d(
     "https://test-pix4d-cloud-eu-central-1.s3.eu-central-1.amazonaws.com/lion_takanawa_converted",
     grid_box={
-        "min": (5, 5, 5),
-        "max": (20, 20, 20),
+        "min": (0, 0, 0),
+        "max": (10, 10, 10),
+    },
+    grid_box_config={
+        "grid_color": "#ff0000",
+        "line_color": "#000000",
+        "opacity": 0.5,
+        "divisions": 10,
     },
     placement='grid_box_center'
 )

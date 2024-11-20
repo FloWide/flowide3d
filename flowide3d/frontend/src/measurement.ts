@@ -125,22 +125,26 @@ export class MeasurementTool extends EventDispatcher<MeasurementEventMap> {
 
     private onClick(event: MouseEvent) {
         if (!this.measuring) return;
-        const point = this.findIntersection(event);
+        const result = this.findIntersection(event);
+        if (!result) return;
+        const [point, localPoint] = result;
+
+        console.log("world point", point);
+        console.log("local point", localPoint);
+
         if (!this.currentMeasurement) {
             this.currentMeasurement = new Measurement();
             this.scene.add(this.currentMeasurement);
         }
-        if (point) {
             
-            if (this.currentMeasurement.startPoint) {
-                this.currentMeasurement.setEndPoint(point);
-                this.measurements.push(this.currentMeasurement);
-                this.dispatchEvent({ type: 'measurement', detail: this.currentMeasurement });
-                this.currentMeasurement = null;
-                this.ghostLine.geometry.setFromPoints([]);
-            } else {
-                this.currentMeasurement.setStartPoint(point);
-            }
+        if (this.currentMeasurement.startPoint) {
+            this.currentMeasurement.setEndPoint(point);
+            this.measurements.push(this.currentMeasurement);
+            this.dispatchEvent({ type: 'measurement', detail: this.currentMeasurement });
+            this.currentMeasurement = null;
+            this.ghostLine.geometry.setFromPoints([]);
+        } else {
+            this.currentMeasurement.setStartPoint(point);
         }
     }
 
@@ -157,7 +161,10 @@ export class MeasurementTool extends EventDispatcher<MeasurementEventMap> {
 
     private onDrag(event: MouseEvent) {
         if (!this.measuring) return;
-        const point = this.findIntersection(event);
+        const result = this.findIntersection(event);
+        if (!result) return;
+
+        const [point, localPoint] = result;
 
         if (point) {
             this.ghostPoint.position.copy(point);
@@ -168,7 +175,7 @@ export class MeasurementTool extends EventDispatcher<MeasurementEventMap> {
 
     }
 
-    private findIntersection(event: MouseEvent) : Vector3 | null  {
+    private findIntersection(event: MouseEvent) : [Vector3, Vector3] | null  {
         const mouse = new Vector2();
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -176,16 +183,18 @@ export class MeasurementTool extends EventDispatcher<MeasurementEventMap> {
         const raycaster = new Raycaster();
         raycaster.setFromCamera(mouse, this.camera);
         const points = [];
+        const localPoints = [];
         for(const pointCloud of this.pointClouds) {
             const point = pointCloud.pick(this.renderer, this.camera, raycaster.ray);
             if (point && point.position) {
                 points.push(point.position);
+                localPoints.push(pointCloud.worldToLocal(point.position.clone()));
             }
         }
         // get closest point
         if (points.length > 0) {
             points.sort((a, b) => a.distanceTo(this.camera.position) - b.distanceTo(this.camera.position));
-            return points[0];
+            return [points[0], localPoints[0]];
         }
         return null
     }
