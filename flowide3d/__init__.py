@@ -145,9 +145,6 @@ def to_las_file(pointcloud: o3d.geometry.PointCloud, output_file: str):
     header.scales = [0.01, 0.01, 0.01]
     header.offsets = [0, 0, 0]
 
-    centroid = pointcloud.get_center()
-    pointcloud.translate(-centroid)
-
     points = np.asarray(pointcloud.points)
 
     las.x = points[:, 0]
