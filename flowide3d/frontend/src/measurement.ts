@@ -27,6 +27,8 @@ const DISTINCT_COLORS: Color[] = [
 
 let COLOR_INDEX = 0;
 
+const MEASUREMENT_DOM = document.getElementById('measurements');
+
 export class Measurement extends Object3D {
 
     public startPoint: Vector3 | null = null;
@@ -39,6 +41,8 @@ export class Measurement extends Object3D {
     public color: Color;
 
     private coordsText: TextSprite | null = null;
+
+    private domElement: HTMLElement | null = null;
 
     constructor(
     ) {
@@ -71,6 +75,7 @@ export class Measurement extends Object3D {
             this.remove(this.coordsText);
             this.coordsText = null;
         }
+        this.addDomElement();
     }
 
     private createLine() {
@@ -86,6 +91,21 @@ export class Measurement extends Object3D {
             text.position.copy(lineCenter);
             this.add(text);
 
+        }
+    }
+
+    private addDomElement() {
+        if (!this.startPoint || !this.endPoint) return;
+        const dx = (this.endPoint.x - this.startPoint.x).toFixed(2);
+        const dy = (this.endPoint.y - this.startPoint.y).toFixed(2);
+        const dz = (this.endPoint.z - this.startPoint.z).toFixed(2);
+        const text = `(dx: ${dx}, dy: ${dy}, dz: ${dz})`;
+        if (MEASUREMENT_DOM) {
+            const div = document.createElement('div');
+            div.style.borderColor = this.color.getStyle();
+            div.innerText = text;
+            MEASUREMENT_DOM.appendChild(div);
+            this.domElement = div;
         }
     }
 
@@ -221,6 +241,9 @@ export class MeasurementTool extends EventDispatcher<MeasurementEventMap> {
             this.scene.remove(measurement);
         }
         this.measurements = [];
+        COLOR_INDEX = 0;
+        if (MEASUREMENT_DOM)
+            MEASUREMENT_DOM.innerHTML = '';
     }
 
 }

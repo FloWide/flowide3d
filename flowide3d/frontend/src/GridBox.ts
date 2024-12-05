@@ -10,7 +10,6 @@ import {
     Raycaster,
     SphereGeometry,
     MeshBasicMaterial,
-    EdgesGeometry,
     LineSegments,
     GridHelper,
     WireframeGeometry,
@@ -19,31 +18,6 @@ import {
 import { TextSprite } from './TextSprite';
 import { Measurement } from './measurement';
 import { Line, BufferGeometry, LineBasicMaterial } from 'three';
-
-
-
-const customWireFrame = new ShaderMaterial({
-    uniforms: {
-        color: { value: new Color(0x000000) },
-    },
-    vertexShader: `
-        varying vec3 vNormal;
-        void main() {
-            vNormal = normal;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-    `,
-    fragmentShader: `
-        uniform vec3 color;
-        varying vec3 vNormal;
-        void main() {
-            float v = dot(vNormal, vec3(0.0, 0.0, 1.0));
-            gl_FragColor = vec4(color, v);
-        }
-    `,
-    side: DoubleSide,
-    transparent: true,
-})
 
 
 export interface GridBoxPoints {
@@ -121,18 +95,12 @@ export class GridBoxMeasurement extends Object3D {
                 endMesh.position.copy(end);
                 this.measurement.add(endMesh);
 
-                this.addDistanceText(start, end);
-
             }
 
             if (start && end && third) {
                 this.measurement.add(createLine(start, third));
 
-                this.addDistanceText(start, third);
-
                 this.measurement.add(createLine(third, end));
-
-                this.addDistanceText(third, end);
             }
         }
     }

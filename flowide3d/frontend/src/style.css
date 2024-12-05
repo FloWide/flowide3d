@@ -12,6 +12,27 @@
   flex-direction: column;
 }
 
+.measurements {
+  position: fixed;
+  bottom: 1em;
+  right: 1em;
+  display: flex;
+  z-index: 1000;
+  flex-direction: column-reverse;
+  max-height: 300px;
+  overflow-y: scroll;
+}
+
+.measurements div {
+  background-color: #fff;
+  padding: 0.5em;
+  border: 2px solid #000;
+  border-radius: 4px;
+  margin: 0.5em;
+  color: black;
+
+}
+
 .icon-button {
   display: inline-flex; /* Centers the icon and maintains button shape */
   justify-content: center; /* Centers content horizontally */
