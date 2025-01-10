@@ -19,7 +19,8 @@ pointcloud3d("http://localhost:8080")
 
 # # show a pointcloud with default config
 st.header('Default config')
-pointcloud3d("https://test-pix4d-cloud-eu-central-1.s3.eu-central-1.amazonaws.com/lion_takanawa_converted")
+result = pointcloud3d("https://test-pix4d-cloud-eu-central-1.s3.eu-central-1.amazonaws.com/lion_takanawa_converted")
+st.write(result)
 
 # arcball control
 st.header('Arcball control')

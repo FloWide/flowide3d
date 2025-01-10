@@ -89,6 +89,11 @@ class GridBoxConfig(TypedDict):
             "divisions": 10,
         }
 
+class Measurement(TypedDict):
+    start: Vec3
+    end: Vec3
+    color: str
+
 
 def pointcloud3d(
     base_url: str,
@@ -100,9 +105,10 @@ def pointcloud3d(
     grid_box: Box3D | Literal['bounding_box'] | None = 'bounding_box',
     grid_box_config: GridBoxConfig | None = None,
     placement: Literal['origin','grid_box_center', 'none'] = 'none',
+    measurements: List[Measurement] | None = None,
     height: int | None =None,
     key: str | None = None
-):
+) -> List[Measurement] | None:
     if camera is None:
         camera = CameraConfig.default()
 
@@ -122,6 +128,7 @@ def pointcloud3d(
         grid_box=grid_box,
         grid_box_config=grid_box_config,
         placement=placement,
+        measurements=measurements,
         key=key, 
         height=height
     )

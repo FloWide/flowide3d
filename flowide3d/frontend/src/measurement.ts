@@ -29,6 +29,12 @@ let COLOR_INDEX = 0;
 
 const MEASUREMENT_DOM = document.getElementById('measurements');
 
+export interface MeasurementJson {
+    start?: [number, number, number];
+    end?: [number, number, number];
+    color?: string;
+}
+
 export class Measurement extends Object3D {
 
     public startPoint: Vector3 | null = null;
@@ -45,9 +51,14 @@ export class Measurement extends Object3D {
     private domElement: HTMLElement | null = null;
 
     constructor(
+        color?: string
     ) {
         super()
-        this.color = DISTINCT_COLORS[COLOR_INDEX];
+        if (color) {
+            this.color = new Color(color);
+        } else {
+            this.color = DISTINCT_COLORS[COLOR_INDEX];
+        }
         COLOR_INDEX = (COLOR_INDEX + 1) % DISTINCT_COLORS.length;
     }
 
@@ -106,6 +117,14 @@ export class Measurement extends Object3D {
             div.innerText = text;
             MEASUREMENT_DOM.appendChild(div);
             this.domElement = div;
+        }
+    }
+
+    toMeasurementJson(): MeasurementJson {
+        return {
+            start: this.startPoint ? [ this.startPoint.x, this.startPoint.y, this.startPoint.z ] : undefined,
+            end: this.endPoint ? [ this.endPoint.x, this.endPoint.y, this.endPoint.z ] : undefined,
+            color: this.color.getStyle()
         }
     }
 
@@ -244,6 +263,18 @@ export class MeasurementTool extends EventDispatcher<MeasurementEventMap> {
         COLOR_INDEX = 0;
         if (MEASUREMENT_DOM)
             MEASUREMENT_DOM.innerHTML = '';
+    }
+
+    addMeasurement(m: MeasurementJson) {
+        const measurement = new Measurement(m.color);
+        if (m.start) {
+            measurement.setStartPoint(new Vector3(m.start[0], m.start[1], m.start[2]));
+        }
+        if (m.end) {
+            measurement.setEndPoint(new Vector3(m.end[0], m.end[1], m.end[2]));
+        }
+        this.measurements.push(measurement);
+        this.scene.add(measurement);
     }
 
 }

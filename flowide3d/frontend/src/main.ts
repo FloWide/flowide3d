@@ -9,6 +9,7 @@ import {
 import {PointCloudScene} from './scene';
 import { GridBox } from './GridBox';
 import { SimpleBox3D } from './SimpleBox';
+import { MeasurementJson } from './measurement';
 
 const DEFAULT_HEIGHT = 600;
 
@@ -38,6 +39,7 @@ function onStreamlitRender(event: Event) {
   const gridBoxType: 'bounding_box' | {min:number[], max:number[]} | null = data.args?.grid_box ?? null;
   const gridBoxConfig = data.args?.grid_box_config;
   const placement = data.args?.placement;
+  const measurements: MeasurementJson[] = data.args?.measurements ?? [];
 
   if (gridBoxType !== 'bounding_box' && gridBoxType !== null) {
     const min = new Vector3(gridBoxType.min[0], gridBoxType.min[1], gridBoxType.min[2]);
@@ -110,6 +112,11 @@ function onStreamlitRender(event: Event) {
     });
 
   }
+
+  for (const measurement of measurements) {
+    pointCloudScene.measurementTool.addMeasurement(measurement);
+  }
+
   pointCloudScene.resize(window.innerWidth, window.innerHeight);
   Streamlit.setFrameHeight(data.args?.height ?? DEFAULT_HEIGHT);
 }
@@ -139,7 +146,12 @@ measureButton?.addEventListener('click', () => {
 
 document.getElementById('clear-button')?.addEventListener('click', () => {
   pointCloudScene.clearMeasurements();
-})
+});
+
+document.getElementById('send-button')?.addEventListener('click', () => {
+  const measurements = pointCloudScene.measurementTool.measurements.map((measurement) => measurement.toMeasurementJson());
+  Streamlit.setComponentValue(measurements);
+});
 
 Streamlit.setComponentReady();
 Streamlit.setFrameHeight(DEFAULT_HEIGHT);

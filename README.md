@@ -71,11 +71,12 @@ pointcloud3d(
 | `grid_box_config`| `GridBoxConfig` or `None`                                          | `GridBoxConfig.default()`     | Configuration for the grid box, including color, opacity, and number of divisions.           |
 | `placement`      | `'origin'`, `'grid_box_center'`, or `'none'`                       | `'none'`                      | Placement of the point cloud in the scene.                                                   |
 | `height`         | `int` or `None`                                                    | `None`                        | Height of the visualization component in pixels.                                              |
+| `measurements`   | `List[Measurement]` or `None`                                      | `None`                        | List of measurements to display alongside the point cloud.                                    |
 | `key`            | `str` or `None`                                                    | `None`                        | Unique key for the component.                                                                 |                                                    |
 
 #### Returns
 
-The configured 3D point cloud visualization component.
+`List[Measurement]` or `None` - A list of measurements that have been updated by the user.
 
 ---
 
